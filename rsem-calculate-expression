@@ -2,6 +2,7 @@
 
 use Getopt::Long qw(:config no_auto_abbrev);
 use Pod::Usage;
+
 use File::Basename;
 use FindBin;
 use lib $FindBin::RealBin;
@@ -14,6 +15,10 @@ use Env qw(@PATH);
 use strict;
 use warnings;
 
+# Fork specific
+my $DIESTRING = "ERROR: Something is wrong with the parameters you are using, either an incorrect name or combination of parameters. Please run:".
+                "\n".$0." -h"."\n". 
+                "and make sure you are using the correct parameter names.\n";
 #const
 my $BURNIN = 200;
 my $NCV = 1000;
@@ -195,7 +200,7 @@ GetOptions("keep-intermediate-files" => \$keep_intermediate_files,
      # help
 	   "version" => \$version,
 	   "q|quiet" => \$quiet,
-	   "h|help" => \$help) or pod2usage(-exitval => 2, -verbose => 2);
+	   "h|help" => \$help) or die( $DIESTRING ); #pod2usage(-exitval => 2, -verbose => 2);
 
 pod2usage(-verbose => 2) if ($help == 1);
 &showVersionInfo($FindBin::RealBin) if ($version == 1);

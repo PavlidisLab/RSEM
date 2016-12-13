@@ -18,9 +18,11 @@ sub runCommand {
     my $status = system($_[0]);
 
     if ($? == -1) {
+	my $errmsg = "";
 	my @arr = split(/[ \t]+/, $_[0]);
-	print "$arr[0] : $!!\n";
-	print "Please check if you have compiled the associated codes by typing related \"make\" commands and/or made related executables ready to use.\n";
+	$errmsg .= "$arr[0] : $!!\n";
+	$errmsg .= "Please check if you have compiled the associated codes by typing related \"make\" commands and/or made related executables ready to use.\n";
+	print $errmsg;
 	exit(-1);
     }
 
@@ -28,6 +30,7 @@ sub runCommand {
         my $errmsg = "";
         if (scalar(@_) > 1) { $errmsg .= $_[1]."\n"; }
 	$errmsg .= "\"$_[0]\" failed! Please check if you provide correct parameters/options for the pipeline!\n";
+	$errmsg .= "Also make sure that the paths to data/binaries as arguments exist and are correct.\n";
 	print $errmsg;
         exit(-1);
     }
