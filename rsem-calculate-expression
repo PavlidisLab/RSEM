@@ -110,6 +110,7 @@ my $star_path  = '';
 my $star_gzipped_read_file = 0;
 my $star_bzipped_read_file = 0;
 my $star_output_genome_bam = 0;
+my $star_shared_memory = 0;
 
 # pRSEM options
 my $run_prsem = 0;
@@ -176,6 +177,7 @@ GetOptions("keep-intermediate-files" => \$keep_intermediate_files,
 	   "star-gzipped-read-file" => \$star_gzipped_read_file,
 	   "star-bzipped-read-file" => \$star_bzipped_read_file,
 	   "star-output-genome-bam" => \$star_output_genome_bam,	   
+	   "star-shared-memory" => \$star_shared_memory,	   
 	   "seed=i" => \$seed,
 	   'run-pRSEM' => \$run_prsem,
 	   'chipseq-target-read-files=s' => \$chipseq_target_read_files, 
@@ -233,6 +235,7 @@ pod2usage(-msg => "The seed for random number generator must be a non-negative 3
 pod2usage(-msg => "The credibility level should be within (0, 1)!\n", -exitval => 2, -verbose => 2) if ($CONFIDENCE <= 0.0 || $CONFIDENCE >= 1.0);
 pod2usage(-msg => "Gzipped read files can only be used for aligner STAR\n", -exitval=>2, -verbose =>2) if ( ( $star == 0 ) && ( $star_gzipped_read_file != 0));
 pod2usage(-msg => "Bzipped read files can only be used for aligner STAR\n", -exitval=>2, -verbose =>2) if ( ( $star == 0 ) && ( $star_bzipped_read_file != 0));
+pod2usage(-msg => "Specify shared memory options for aligner STAR with --star-shared-memory. \n Options: NoSharedMemory, LoadAndKeep, LoadAndRemove, LoadAndExit.", -exitval=>2, -verbose =>0) if ( ( $star_shared_memory == 0 ) && ( $star != 0));
 
 if ( $run_prsem ) {
   my $msg = '';
