@@ -11,6 +11,7 @@ Features:
 * Added helper scripts copied from rsem-generate-data-matrix to handle tpm and fpkm summarization
     * Named rsem-generate-tpm-matrix, rsem-generate-fpkm-matrix respectively
     * TODO: This could be changed to a parameter for the original script, and the new scripts changed to wrappers calling the original script with the parameter.
+* Prevented rsem-calculate-expression from printing entire documentation pages to STDERR if either the parameters requested didn't exist (e.g. from a typo) or if path to argument doesn't exist.
 * Minor documentation changes.
 
 For issues or improvement suggestions, the 'Issues' section of this repository is appropriate. This repository is maintained by Manuel Belmadani | @[mbelmadani](https://github.com/mbelmadani/) | <mbelm006@uottawa.ca>. 
