@@ -7,11 +7,12 @@ Features:
 ----------
 * Added rsem-star-load-shmem to load genome into shared memory, ready to be used by calls to rsem-calculate-expression
 * Added rsem-star-clear-shmem to clear the genome loaded into shared memory by rsem-star-load-shmem.
-* Modified rsem-calculate-expression to call STAR with '--genomeLoad LoadAndKeep', allowing it to use existing Genomes loaded in shared memory
+* Modified rsem-calculate-expression to call STAR shared memory options with '--star-shared-memory METHOD', where METHOD is any method allowed by STAR (LoadAndExit, LoadAndKeep, NoSharedMemory etc. See the [STAR manual](https://github.com/alexdobin/STAR/blob/master/doc/STARmanual.pdf) under shared memory for more information.) . This permits concurrent RSEM jobs to use the same existing Genomes loaded in shared memory.
 * Added helper scripts copied from rsem-generate-data-matrix to handle tpm and fpkm summarization
     * Named rsem-generate-tpm-matrix, rsem-generate-fpkm-matrix respectively
     * TODO: This could be changed to a parameter for the original script, and the new scripts changed to wrappers calling the original script with the parameter.
-* Prevented rsem-calculate-expression from printing entire documentation pages to STDERR if either the parameters requested didn't exist (e.g. from a typo) or if path to argument doesn't exist.
+* Reduced verbosity in rsem-calculate-expression from printing entire documentation pages to STDERR when an error is raised by Pod.
+* Added details to error messages if either the parameters requested didn't exist (e.g. from a typo) or if path to argument doesn't exist.
 * Minor documentation changes.
 
 For issues or improvement suggestions, the 'Issues' section of this repository is appropriate. This repository is maintained by Manuel Belmadani | @[mbelmadani](https://github.com/mbelmadani/) | <mbelm006@uottawa.ca>. 
