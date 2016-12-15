@@ -16,6 +16,7 @@ use strict;
 use warnings;
 
 # Fork specific
+use Data::Dumper qw(Dumper);
 my $DIESTRING = "ERROR: Something is wrong with the parameters you are using, either an incorrect name or combination of parameters. Please run:".
                 "\n".$0." -h"."\n". 
                 "and make sure you are using the correct parameter names.\n";
@@ -209,12 +210,18 @@ pod2usage(-verbose => 2) if ($help == 1);
 
 #check parameters and options
 
+#print Dumper \@ARGV;
+#print "\n";
+#die;
+
 if ($is_alignment) {
-    pod2usage(-msg => "Invalid number of arguments!", -exitval => 2, -verbose => 2) if (scalar(@ARGV) != 3);
+    pod2usage(-msg => "Invalid number of arguments!", -exitval => 2, -verbose => 0) if (scalar(@ARGV) != 3);
     pod2usage(-msg => "--bowtie-path, --bowtie-n, --bowtie-e, --bowtie-m, --phred33-quals, --phred64-quals, --solexa-quals, --bowtie2, --bowtie2-path, --bowtie2-mismatch-rate, --bowtie2-k, --bowtie2-sensitivity-level, --star, --star-path, and --star-output-genome-bam cannot be set if input is SAM/BAM/CRAM format!", -exitval => 2, -verbose => 2) if ($bowtie_path ne "" || $C != 2 || $E != 99999999 || $maxHits != 200 || $phred33 || $phred64 || $solexa || $bowtie2 || $bowtie2_path ne "" || $bowtie2_mismatch_rate != 0.1 || $bowtie2_k != 200 || $bowtie2_sensitivity_level ne "sensitive" || $star || $star_path ne "" || $star_output_genome_bam);
 }
 else {
-    pod2usage(-msg => "Invalid number of arguments!", -exitval => 2, -verbose => 2) if (!$paired_end && scalar(@ARGV) != 3 || $paired_end && scalar(@ARGV) != 4);    
+    print scalar(@ARGV)."\n\n";
+    pod2usage(-msg => "Invalid number of arguments!", -exitval => 2, -verbose => 0) if (!$paired_end && scalar(@ARGV) != 4 || $paired_end && scalar(@ARGV) != 5); # mbelmadani: Increased by 1 because of shared memory parameter. 
+
     pod2usage(-msg => "If --no-qualities is set, neither --phred33-quals, --phred64-quals or --solexa-quals can be active!", -exitval => 2, -verbose => 2) if ($no_qual && ($phred33 + $phred64 + $solexa > 0));
     pod2usage(-msg => "Only one of --phred33-quals, --phred64-quals, and --solexa-quals can be active!", -exitval => 2, -verbose => 2) if ($phred33 + $phred64 + $solexa > 1);    
     pod2usage(-msg => "--bowtie2-path, --bowtie2-mismatch-rate, --bowtie2-k and --bowtie2-sensitivity-level cannot be set if bowtie aligner is used!", -exitval => 2, -verbose => 2) if (!$bowtie2 && ($bowtie2_path ne "" || $bowtie2_mismatch_rate != 0.1 || $bowtie2_k != 200 || $bowtie2_sensitivity_level ne "sensitive"));
@@ -331,9 +338,17 @@ else {
     else { $read_type = 1; }
 }
 
-if (scalar(@ARGV) == 3) {
-    if ($is_alignment) { $inpF = $ARGV[0]; } 
-    else {$mate1_list = $ARGV[0]; }
+# FIXME: ARGV should not be used by index since it's not clear if parameters can appear in a different order.
+# The 4th argument is used for shared memory facilities.
+# The sampleName here is also really just the output directory/prefix.
+
+if (scalar(@ARGV) == 4) {
+    if ($is_alignment) { 
+	$inpF = $ARGV[0]; 
+    } 
+    else {
+	$mate1_list = $ARGV[0]; 
+    }
     $refName = $ARGV[1];
     $sampleName = $ARGV[2];
 }
@@ -388,6 +403,7 @@ if (!$is_alignment) {
 	if ( $star ) {
 	    ## align reads by STAR
 	    my $star_genome_path = dirname($refName);
+
 	    $command = "$star_path"."STAR" . 
 	               ## ENCODE3 pipeline parameters
 	               " --genomeDir $star_genome_path " .

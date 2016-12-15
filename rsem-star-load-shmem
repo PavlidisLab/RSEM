@@ -1,4 +1,14 @@
 #!/bin/bash
+set -eu
 
-echo "NOT IMPLEMENTED!"
-exit
+STAR_EXE=$1
+REFERENCE=$2
+NCPU=1
+if [ $# -gt 2 ]
+    then
+    NCPU=$3
+fi
+
+CMD="$STAR_EXE --genomeDir $REFERENCE --runThreadN $NCPU --genomeLoad LoadAndExit"
+echo $CMD
+$CMD
