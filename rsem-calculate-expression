@@ -426,7 +426,7 @@ if (!$is_alignment) {
 	               ## do not allow using shared memory
 	               ###' --genomeLoad NoSharedMemory ' .
 		       ### mbelmadani: I want to share my genome across processes.
-		       ' --genomeLoad '.$star_shared_memory.' ' .
+		       ' --genomeLoad '. $ARGV[scalar(@ARGV)-1] .' ' . # Assuming it's the last parameter.
 	               ##
 	
 	               ## different than ENCODE3 pipeline, which sorts output BAM
