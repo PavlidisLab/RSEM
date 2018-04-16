@@ -112,7 +112,9 @@ my $star_gzipped_read_file = 0;
 my $star_bzipped_read_file = 0;
 my $star_output_genome_bam = 0;
 my $star_shared_memory = 0;
+my $star_sam_unmapped = 0;
 my $SHARED_MEMORY_METHOD = "NoSharedMemory"; # Default
+my $SAM_UNMAPPED = "Within"; # Default
 
 my $EXPECTED_ARGS = 3; # List of input, <Optional; List of Mates>, Reference, Output prefix, <Optional; Shared memory setting>
 
@@ -182,6 +184,7 @@ GetOptions("keep-intermediate-files" => \$keep_intermediate_files,
 	   "star-bzipped-read-file" => \$star_bzipped_read_file,
 	   "star-output-genome-bam" => \$star_output_genome_bam,	   
 	   "star-shared-memory" => \$star_shared_memory,	   
+	   "star-sam-unmapped" => \$star_sam_unmapped,	   
 	   "seed=i" => \$seed,
 	   'run-pRSEM' => \$run_prsem,
 	   'chipseq-target-read-files=s' => \$chipseq_target_read_files, 
@@ -225,6 +228,12 @@ if ($star_shared_memory){
     $SHARED_MEMORY_METHOD = $ARGV[$EXPECTED_ARGS-1]; # Assuming this will always be the last argument.
 }
 
+if ($star_sam_unmapped){
+    $SAM_UNMAPPED = "None"; 
+}
+
+
+
 pod2usage(-msg => "Invalid number of arguments!", -exitval => 2, -verbose => 0) if (scalar(@ARGV) != $EXPECTED_ARGS);    
 if ($is_alignment) {
     pod2usage(-msg => "--bowtie-path, --bowtie-n, --bowtie-e, --bowtie-m, --phred33-quals, --phred64-quals, --solexa-quals, --bowtie2, --bowtie2-path, --bowtie2-mismatch-rate, --bowtie2-k, --bowtie2-sensitivity-level, --star, --star-path, and --star-output-genome-bam cannot be set if input is SAM/BAM/CRAM format!", -exitval => 2, -verbose => 2) if ($bowtie_path ne "" || $C != 2 || $E != 99999999 || $maxHits != 200 || $phred33 || $phred64 || $solexa || $bowtie2 || $bowtie2_path ne "" || $bowtie2_mismatch_rate != 0.1 || $bowtie2_k != 200 || $bowtie2_sensitivity_level ne "sensitive" || $star || $star_path ne "" || $star_output_genome_bam);
@@ -250,6 +259,7 @@ pod2usage(-msg => "The credibility level should be within (0, 1)!\n", -exitval =
 pod2usage(-msg => "Gzipped read files can only be used for aligner STAR\n", -exitval=>2, -verbose =>2) if ( ( $star == 0 ) && ( $star_gzipped_read_file != 0));
 pod2usage(-msg => "Bzipped read files can only be used for aligner STAR\n", -exitval=>2, -verbose =>2) if ( ( $star == 0 ) && ( $star_bzipped_read_file != 0));
 pod2usage(-msg => "Specify shared memory options for aligner STAR with --star-shared-memory. \n Options: NoSharedMemory, LoadAndKeep, LoadAndRemove, LoadAndExit.", -exitval=>2, -verbose =>0) if ( ( $star_shared_memory == 0 ) && ( $star != 0));
+pod2usage(-msg => "Switch to exclude unmappable read in output SAM from STAR.", -exitval=>2, -verbose =>0) if ( ( $star_sam_unmapped == 0 ) && ( $star != 0) );
 
 if ( $run_prsem ) {
   my $msg = '';
@@ -413,7 +423,7 @@ if (!$is_alignment) {
 	    $command = "$star_path"."STAR" . 
 	               ## ENCODE3 pipeline parameters
 	               " --genomeDir $star_genome_path " .
-	               ' --outSAMunmapped Within ' .
+	               ## ' --outSAMunmapped Within ' .
 	               ' --outFilterType BySJout ' .
 	               ' --outSAMattributes NH HI AS NM MD ' .
 	               ' --outFilterMultimapNmax 20 ' .
@@ -430,6 +440,7 @@ if (!$is_alignment) {
 	
 	               ## different than ENCODE3 pipeline 
 			       ' --genomeLoad '. $SHARED_MEMORY_METHOD .' ' . 
+			       ' --outSAMunmapped '. $SAM_UNMAPPED .' ' .
 	               ##
 	
 	               ## different than ENCODE3 pipeline, which sorts output BAM
